@@ -1,4 +1,4 @@
-# ai-security-review
+# AI Security Review
 
 An architecture-first security review for repositories containing **AI-enabled systems** —
 agents, LLM integrations, RAG, memory, tools, MCP, and orchestration. Packaged as a native,
