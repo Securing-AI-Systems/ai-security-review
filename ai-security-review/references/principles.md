@@ -1,6 +1,6 @@
 # Supporting principles
 
-BICO (`references/bico.md`) is the primary methodology. Use these principles when they
+BICO (`${CLAUDE_SKILL_DIR}/references/bico.md`) is the primary methodology. Use these principles when they
 materially improve an analysis. None of them is a finding on its own — each must connect to a
 real path with real consequence.
 
@@ -58,7 +58,7 @@ defense in depth.**
 ## Fail securely
 
 Failures should reduce capability rather than expand it. (See the fail-securely lens in
-`references/bico.md` for the concrete patterns.)
+`${CLAUDE_SKILL_DIR}/references/bico.md` for the concrete patterns.)
 
 ## Lethal Trifecta
 

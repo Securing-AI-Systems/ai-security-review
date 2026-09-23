@@ -22,10 +22,10 @@ artifact: the `ai-security-review` Claude Code Skill, which operationalizes the 
 methodology (Behaviour, Identity, Controls, Observability) as a runnable, architecture-first
 security review.
 
-The skill is **fully self-contained** — it needs no part of the book, no external service, and
-no network access to run. The book is the source of the methodology and the reason this
-repository exists; it is not a runtime dependency. Copy the skill into any repository containing
-an AI-enabled system and it works on its own.
+The skill is **fully self-contained** — it needs no part of the book and no external service, and
+does not require network access to perform a repository review. The book is the source of the
+methodology and the reason this repository exists; it is not a runtime dependency. Copy the skill
+into any repository containing an AI-enabled system and it works on its own.
 
 ## BICO
 
@@ -74,8 +74,8 @@ cp -R ai-security-review ~/.claude/skills/ai-security-review
 mkdir -p .claude/skills && cp -R ai-security-review .claude/skills/ai-security-review
 ```
 
-The portable unit is the `ai-security-review/` directory (containing `SKILL.md` and
-`references/`). It is self-contained — nothing else in this repository is required at runtime.
+The portable unit is the `ai-security-review/` directory (`SKILL.md`, `references/`, and its own
+`LICENSE`). It is self-contained — nothing else in this repository is required at runtime.
 
 ## Use
 
@@ -111,10 +111,16 @@ observability across the whole system.
 ## Read-only
 
 The skill does not modify code, prompts, dependencies, configuration, IAM, or infrastructure;
-does not install anything; does not remediate automatically; and does not touch live systems.
-This is enforced as a **control**, not merely a promise: the skill declares only
-`Read, Grep, Glob` in its `allowed-tools` and withholds every mutating and command-executing
-tool (`Edit`, `Write`, `Bash`).
+does not install anything; and does not remediate automatically. This boundary is enforced by the
+harness, not left to model intent: the skill's `disallowed-tools` frontmatter **removes** the
+file-mutation and command-execution tools (`Edit`, `Write`, `NotebookEdit`, `Bash`) for the
+duration of the review, while `allowed-tools` pre-approves the read-only inspection tools it does
+use (`Read`, `Grep`, `Glob`) so the review runs without permission prompts.
+
+The enforced read-only boundary prevents file mutation and command execution — it is **not** a
+network-isolation control. Network-capable tools (WebSearch, WebFetch, MCP integrations) are not
+removed; the skill simply does not require network access to perform a repository review, so treat
+the lack of network dependency as a design property, not a guaranteed isolation boundary.
 
 ## Framework independence
 
@@ -130,13 +136,15 @@ APIs, and custom agent frameworks; serverless, containers, and cloud-native infr
 ├── LICENSE                       # Apache-2.0
 ├── ai-security-review/           # the portable skill (copy this into .claude/skills/)
 │   ├── SKILL.md                  # operational core: workflow, FP discipline, evidence, report
+│   ├── LICENSE                   # Apache-2.0 (travels with the skill directory)
 │   └── references/               # progressive disclosure — loaded on demand
 │       ├── bico.md               # BICO dimension definitions + probing questions
 │       ├── principles.md         # supporting principles + large-repo prioritization
 │       └── reporting.md          # report structure + a worked finding
 └── evaluation/                   # rubric-based eval (not shipped with the skill)
-    ├── README.md
-    └── cases.md                  # 10 reasoning cases (findings, non-findings, out-of-scope)
+    ├── README.md                 # how to run + pass/fail criteria
+    ├── cases/                    # 10 inputs, one per file (the only files the skill sees)
+    └── expected.md               # evaluator-only answer key (kept away from the skill)
 ```
 
 ## Provenance

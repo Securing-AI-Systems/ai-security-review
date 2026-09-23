@@ -1,17 +1,15 @@
 ---
 name: ai-security-review
 description: >-
-  Architecture-first security review for repositories containing AI-enabled systems
-  (agents, LLM integrations, RAG, memory, tools, MCP, orchestration). Traces how untrusted
-  input, AI decisions, identity and delegation, technical controls, and observability
-  combine into real security paths, using the BICO methodology (Behaviour, Identity,
-  Controls, Observability). Read-only. Use when asked to "ai security review", "review this
-  AI system for security", "threat model this agent", "BICO review", or to assess what can
-  happen if an AI system is manipulated or behaves unexpectedly. Not a generic SAST scanner:
-  it focuses on risks that emerge from combining probabilistic AI behaviour with real-world
-  authority. Framework-independent (Anthropic, OpenAI, Google, Bedrock, Azure, local models,
-  LangChain/LangGraph, CrewAI, AutoGen, MCP, custom).
+  Architecture-first security review of AI-enabled systems (agents, LLM integrations, RAG,
+  memory, tools, MCP). Traces how untrusted input, AI decisions, identity and delegation,
+  controls, and observability combine into real attack paths, using the BICO methodology
+  (Behaviour, Identity, Controls, Observability). Read-only and framework-independent. Not a
+  generic SAST scanner. Use when asked to "ai security review", "BICO review", "threat model
+  this agent", or to assess what can happen if an AI system is manipulated or behaves
+  unexpectedly.
 allowed-tools: Read, Grep, Glob
+disallowed-tools: Edit, Write, NotebookEdit, Bash
 license: Apache-2.0
 ---
 
@@ -32,10 +30,13 @@ and authority.
 
 This skill is **read-only**. It must not modify code, prompts, dependencies, configuration,
 IAM, or infrastructure; must not install anything, remediate automatically, or touch live
-systems. Safe repository inspection only. This is enforced as a *control*, not just an
-instruction: the skill grants only `Read, Grep, Glob` — read-only file inspection and search —
-and withholds every mutating and command-executing tool (`Edit`, `Write`, `Bash`). Any
-remediation is a separate, explicitly requested task.
+systems. Safe repository inspection only. The file-mutation and command-execution tools
+(`Edit`, `Write`, `NotebookEdit`, `Bash`) are removed for the duration of the review via the
+skill's `disallowed-tools` frontmatter — so the boundary is enforced by the harness, not left
+to model intent — while `Read`, `Grep`, and `Glob` (pre-approved via `allowed-tools`) provide
+the inspection and search capability the review needs. Do not attempt to reach a
+side-effecting capability by another route. Any remediation is a separate, explicitly
+requested task.
 
 ## The BICO model
 
@@ -78,10 +79,10 @@ defender reconstruct it. A finding may involve one, several, or all four dimensi
 force all four onto every finding.
 
 Depth on each dimension (definitions + probing questions + the confused-deputy and
-fail-securely patterns) is in **`references/bico.md`** — read it when analyzing a path in
+fail-securely patterns) is in **`${CLAUDE_SKILL_DIR}/references/bico.md`** — read it when analyzing a path in
 detail. Supporting principles (untrusted input, trust boundaries, least privilege,
 separation of duties, verify-before-trust, defense in depth, fail securely, the Lethal
-Trifecta, provenance, control decay) are in **`references/principles.md`** — read it when a
+Trifecta, provenance, control decay) are in **`${CLAUDE_SKILL_DIR}/references/principles.md`** — read it when a
 path invokes one of them.
 
 ## Review process
@@ -96,7 +97,7 @@ show your evidence in the report.
    config, networking, policy/approval mechanisms, telemetry, deployment, tests. Do **not**
    burn context on vendor dirs, lockfile internals, generated output, caches, or binaries
    unless a specific path requires them. For large repos, prioritize AI-relevant components
-   (see `references/principles.md` "Prioritizing large repositories").
+   (see `${CLAUDE_SKILL_DIR}/references/principles.md` "Prioritizing large repositories").
 
 2. **Build an architectural model.** Identify components, model/trust boundaries, security
    principals, AuthN/AuthZ/delegation, privilege transitions, sensitive assets, data/context/
@@ -109,7 +110,7 @@ show your evidence in the report.
    files. Reason as: `influence → decision → identity → capability → control → consequence`.
    Do not stop at the first suspicious function.
 
-4. **Apply BICO** to each meaningful path (see above and `references/bico.md`).
+4. **Apply BICO** to each meaningful path (see above and `${CLAUDE_SKILL_DIR}/references/bico.md`).
 
 5. **Challenge assumptions.** For important paths, consider realistic failure: malicious
    retrieved content, wrong tool selection, attacker-controlled tool arguments, low-privilege
@@ -187,7 +188,7 @@ everything, eliminating all autonomy, or changing providers.
 
 ## Report
 
-Read **`references/reporting.md`** before writing the report; it defines the required
+Read **`${CLAUDE_SKILL_DIR}/references/reporting.md`** before writing the report; it defines the required
 structure and shows a worked finding. The report includes: **Architecture Summary**,
 **Security Paths** analyzed, **Findings** (Severity, Confidence, Classification, BICO
 dimension(s), Finding, Evidence, Security path, what actually happens, realistic impact,
